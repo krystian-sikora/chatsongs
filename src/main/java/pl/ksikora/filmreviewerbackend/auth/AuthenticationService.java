@@ -6,11 +6,11 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import pl.ksikora.filmreviewerbackend.config.JwtService;
-import pl.ksikora.filmreviewerbackend.token.Token;
+import pl.ksikora.filmreviewerbackend.token.TokenEntity;
 import pl.ksikora.filmreviewerbackend.token.TokenRepository;
 import pl.ksikora.filmreviewerbackend.token.TokenType;
 import pl.ksikora.filmreviewerbackend.user.UserRole;
-import pl.ksikora.filmreviewerbackend.user.User;
+import pl.ksikora.filmreviewerbackend.user.UserEntity;
 import pl.ksikora.filmreviewerbackend.user.UserRepository;
 
 @Service
@@ -24,7 +24,7 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegistrationRequest request) {
-        var user = User.builder()
+        var user = UserEntity.builder()
                 .email(request.getEmail())
                 .nickname(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
@@ -36,8 +36,11 @@ public class AuthenticationService {
         }
         userRepository.save(user);
 
+        String accessToken = jwtService.generateToken(user);
+        saveUserToken(user, accessToken);
+
         return AuthenticationResponse.builder()
-                .accessToken(jwtService.generateToken(user))
+                .accessToken(accessToken)
                 .refreshToken(jwtService.generateRefreshToken(user))
                 .build();
     }
@@ -63,8 +66,8 @@ public class AuthenticationService {
                 .build();
     }
 
-    private void saveUserToken(User user, String jwtToken) {
-        var token = Token.builder()
+    private void saveUserToken(UserEntity user, String jwtToken) {
+        var token = TokenEntity.builder()
                 .user(user)
                 .token(jwtToken)
                 .tokenType(TokenType.BEARER)
@@ -75,7 +78,7 @@ public class AuthenticationService {
         tokenRepository.save(token);
     }
 
-    private void revokeAllUserTokens(User user) {
+    private void revokeAllUserTokens(UserEntity user) {
         var validUserTokens = tokenRepository.findAllValidTokenByUser(user.getId());
 
         if (validUserTokens.isEmpty()) return;
