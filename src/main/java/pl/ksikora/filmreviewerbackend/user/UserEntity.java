@@ -64,4 +64,13 @@ public class UserEntity implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    public UserDTO toDTO() {
+        return UserDTO.builder()
+                .id(id)
+                .role(role)
+                .nickname(nickname)
+                .email(email)
+                .build();
+    }
 }

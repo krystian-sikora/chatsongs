@@ -18,13 +18,15 @@ public class ChatService {
     private final UserRepository userRepository;
     private final AuthenticationFacade authenticationFacade;
 
-    public Long createChat(List<Long> userIds) {
+    public ChatDTO createChat(List<Long> userIds) {
+
+        // TODO: don't let user create chat with himself only and automatically add current user to chat if not present
 
         List<UserEntity> users = userRepository.findAllByIdIn(userIds)
                 .orElseThrow(() -> new IllegalArgumentException("Users not found"));
 
         String name = users.stream()
-                .map(UserEntity::getUsername)
+                .map(UserEntity::getNickname)
                 .reduce((a, b) -> a + ", " + b)
                 .orElseThrow();
 
@@ -34,17 +36,28 @@ public class ChatService {
                 .name(name)
                 .build();
 
-        log.info("Creating chat: {}", chat.getId());
-
         chatRepository.save(chat);
 
-        return chat.getId();
+        return ChatDTO.builder()
+                .id(chat.getId())
+                .name(chat.getName())
+                .users(chat.getUsers().stream().map(UserEntity::toDTO).toList())
+                .messages(chat.getMessages())
+                .build();
     }
 
-    public List<ChatEntity> getChats() {
+    public List<ChatDTO> getChats() {
 
         UserEntity user = authenticationFacade.getCurrentUser();
+        List<ChatEntity> chats = chatRepository.findAllByUsersId(user.getId());
 
-        return chatRepository.findAllByUsersId(user.getId());
+        return chats.stream()
+                .map(chat -> ChatDTO.builder()
+                        .id(chat.getId())
+                        .name(chat.getName())
+                        .users(chat.getUsers().stream().map(UserEntity::toDTO).toList())
+                        .messages(chat.getMessages())
+                        .build())
+                .toList();
     }
 }

@@ -18,14 +18,14 @@ public class ChatController {
     private final ChatService chatService;
 
     @PostMapping
-    public ResponseEntity<Long> createChat(
+    public ResponseEntity<ChatDTO> createChat(
             @RequestBody List<Long> userIds
     ) {
         return ResponseEntity.ok(chatService.createChat(userIds));
     }
 
     @GetMapping
-    public ResponseEntity<List<ChatEntity>> getChats() {
+    public ResponseEntity<List<ChatDTO>> getChats() {
         // TODO: Pagination
         return ResponseEntity.ok(chatService.getChats());
     }

@@ -9,6 +9,7 @@ import pl.ksikora.filmreviewerbackend.config.JwtService;
 import pl.ksikora.filmreviewerbackend.token.TokenEntity;
 import pl.ksikora.filmreviewerbackend.token.TokenRepository;
 import pl.ksikora.filmreviewerbackend.token.TokenType;
+import pl.ksikora.filmreviewerbackend.user.UserDTO;
 import pl.ksikora.filmreviewerbackend.user.UserRole;
 import pl.ksikora.filmreviewerbackend.user.UserEntity;
 import pl.ksikora.filmreviewerbackend.user.UserRepository;
@@ -36,13 +37,7 @@ public class AuthenticationService {
         }
         userRepository.save(user);
 
-        String accessToken = jwtService.generateToken(user);
-        saveUserToken(user, accessToken);
-
-        return AuthenticationResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(jwtService.generateRefreshToken(user))
-                .build();
+        return getAuthenticationResponse(user);
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -57,13 +52,7 @@ public class AuthenticationService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         revokeAllUserTokens(user);
-        String accessToken = jwtService.generateToken(user);
-        saveUserToken(user, accessToken);
-
-        return AuthenticationResponse.builder()
-                .accessToken(accessToken)
-                .refreshToken(jwtService.generateRefreshToken(user))
-                .build();
+        return getAuthenticationResponse(user);
     }
 
     private void saveUserToken(UserEntity user, String jwtToken) {
@@ -89,5 +78,23 @@ public class AuthenticationService {
         });
 
         tokenRepository.saveAll(validUserTokens);
+    }
+
+    private AuthenticationResponse getAuthenticationResponse(UserEntity user) {
+        String accessToken = jwtService.generateToken(user);
+        saveUserToken(user, accessToken);
+
+        UserDTO userDTO = UserDTO.builder()
+                .id(user.getId())
+                .role(user.getRole())
+                .nickname(user.getNickname())
+                .email(user.getEmail())
+                .build();
+
+        return AuthenticationResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(jwtService.generateRefreshToken(user))
+                .user(userDTO)
+                .build();
     }
 }
