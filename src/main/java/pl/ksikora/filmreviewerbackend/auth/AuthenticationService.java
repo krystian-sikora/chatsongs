@@ -1,5 +1,8 @@
 package pl.ksikora.filmreviewerbackend.auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,6 +16,8 @@ import pl.ksikora.filmreviewerbackend.user.UserDTO;
 import pl.ksikora.filmreviewerbackend.user.UserRole;
 import pl.ksikora.filmreviewerbackend.user.UserEntity;
 import pl.ksikora.filmreviewerbackend.user.UserRepository;
+
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -96,5 +101,42 @@ public class AuthenticationService {
                 .refreshToken(jwtService.generateRefreshToken(user))
                 .user(userDTO)
                 .build();
+    }
+
+    public void refresh(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws IOException {
+        final String authHeader = request.getHeader("AUTHORIZATION");
+        final String refreshToken;
+        final String userEmail;
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) return;
+
+        refreshToken = authHeader.substring(7);
+        userEmail = jwtService.extractEmail(refreshToken);
+
+        if (userEmail == null) return;
+
+        var user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (jwtService.isTokenValid(refreshToken, user)) {
+            revokeAllUserTokens(user);
+            String accessToken = jwtService.generateToken(user);
+            saveUserToken(user, accessToken);
+
+            var authResponse = AuthenticationResponse.builder()
+                    .user(UserDTO.builder()
+                            .id(user.getId())
+                            .role(user.getRole())
+                            .nickname(user.getNickname())
+                            .email(user.getEmail())
+                            .build())
+                    .accessToken(accessToken)
+                    .refreshToken(refreshToken)
+                    .build();
+            new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
+        }
     }
 }

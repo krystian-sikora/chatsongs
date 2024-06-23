@@ -18,13 +18,15 @@ public class MessageController {
     private final SimpMessagingTemplate template;
 
     @MessageMapping("/chat")
-    public void send(@Payload MessageDTO message, Principal user) {
+    public void send(@Payload MessageRequest message, Principal user) {
 
         MessageEntity processedMessage = messageService.saveMessage(message, user.getName());
 
-        template.convertAndSendToUser(
-                processedMessage.getChat().getId().toString(),
-                "/queue/messages", processedMessage
-        );
+        processedMessage.getChat().getUsers().stream()
+                .map(u -> u.getId().toString())
+                .forEach(userId -> template.convertAndSendToUser(
+                        userId,
+                        "/queue/messages", processedMessage.toDTO()
+                ));
     }
 }

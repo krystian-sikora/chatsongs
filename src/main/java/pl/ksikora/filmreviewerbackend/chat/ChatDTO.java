@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pl.ksikora.filmreviewerbackend.chat.message.MessageEntity;
+import pl.ksikora.filmreviewerbackend.chat.message.MessageDTO;
 import pl.ksikora.filmreviewerbackend.user.UserDTO;
 
 import java.util.List;
@@ -17,5 +17,5 @@ public class ChatDTO {
     private Long id;
     private String name;
     private List<UserDTO> users;
-    private List<MessageEntity> messages;
+    private List<MessageDTO> messages;
 }

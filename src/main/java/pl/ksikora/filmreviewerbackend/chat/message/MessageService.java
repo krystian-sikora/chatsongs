@@ -20,7 +20,7 @@ public class MessageService {
     private final ChatRepository chatRepository;
     private final UserRepository userRepository;
 
-    public MessageEntity saveMessage(MessageDTO receivedMessage, String email) {
+    public MessageEntity saveMessage(MessageRequest receivedMessage, String email) {
 
         Long id = userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"))

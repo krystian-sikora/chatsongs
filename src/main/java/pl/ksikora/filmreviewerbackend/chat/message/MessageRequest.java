@@ -1,20 +1,17 @@
 package pl.ksikora.filmreviewerbackend.chat.message;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.Instant;
-
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class MessageDTO {
-    private Long id;
+public class MessageRequest {
+    @JsonProperty("chat_id")
     private Long chatId;
-    private Long senderId;
     private String content;
-    private Instant createdAt;
 }

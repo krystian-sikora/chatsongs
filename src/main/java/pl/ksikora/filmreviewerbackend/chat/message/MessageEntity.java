@@ -29,4 +29,14 @@ public class MessageEntity {
     private Instant createdAt;
     private String content;
     private Long senderId;
+
+    public MessageDTO toDTO() {
+        return MessageDTO.builder()
+                .id(id)
+                .chatId(chat.getId())
+                .content(content)
+                .createdAt(createdAt)
+                .senderId(senderId)
+                .build();
+    }
 }

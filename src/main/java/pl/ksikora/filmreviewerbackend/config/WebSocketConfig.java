@@ -45,20 +45,22 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.interceptors(new ChannelInterceptor() {
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
-                StompHeaderAccessor accessor =
-                        MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-                log.info("Headers: {}", accessor);
+
+                StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
                 assert accessor != null;
+
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
 
-                    String authorizationHeader = accessor.getFirstNativeHeader("Authorization");
-                    assert authorizationHeader != null;
-                    String token = authorizationHeader.substring(7);
-
+                    String token = extractToken(accessor);
                     String email = jwtService.extractEmail(token);
                     UserDetails userDetails = userService.getUserByEmail(email);
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                            new UsernamePasswordAuthenticationToken(
+                                    userDetails, null, userDetails.getAuthorities()
+                            );
+
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 
                     accessor.setUser(usernamePasswordAuthenticationToken);
@@ -68,5 +70,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             }
 
         });
+    }
+
+    private static String extractToken(StompHeaderAccessor accessor) {
+        String authorizationHeader = accessor.getFirstNativeHeader("Authorization");
+        assert authorizationHeader != null;
+        return authorizationHeader.substring(7);
     }
 }
