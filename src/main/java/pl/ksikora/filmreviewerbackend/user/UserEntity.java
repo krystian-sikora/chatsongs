@@ -6,6 +6,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import pl.ksikora.filmreviewerbackend.spotify.SpotifyCredentialsEntity;
 
 import java.util.Collection;
 import java.util.List;
@@ -34,6 +36,8 @@ public class UserEntity implements UserDetails {
     private String nickname;
     private String password;
     private String email;
+    @OneToOne
+    private SpotifyCredentialsEntity spotifyCredentials;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
