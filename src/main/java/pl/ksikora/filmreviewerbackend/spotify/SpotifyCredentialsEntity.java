@@ -23,6 +23,6 @@ public class SpotifyCredentialsEntity {
     private Long id;
     @OneToOne
     private UserEntity user;
-    private String access_token;
-    private String refresh_token;
+    private String accessToken;
+    private String refreshToken;
 }

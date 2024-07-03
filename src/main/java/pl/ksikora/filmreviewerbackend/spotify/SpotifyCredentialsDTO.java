@@ -1,10 +1,18 @@
 package pl.ksikora.filmreviewerbackend.spotify;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class SpotifyCredentialsDTO {
     @JsonProperty("access_token")
-    public String accessToken;
+    private String accessToken;
     @JsonProperty("refresh_token")
-    public String refreshToken;
+    private String refreshToken;
 }

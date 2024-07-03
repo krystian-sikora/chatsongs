@@ -24,14 +24,19 @@ public class SpotifyService {
     private final AuthenticationFacade authenticationFacade;
     private final SpotifyCredentialsRepository spotifyCredentialsRepository;
 
-    public SpotifyCredentialsEntity getCredentials() {
+    public SpotifyCredentialsDTO getCredentials() {
         UserEntity user = Optional.ofNullable(authenticationFacade.getCurrentUser())
                 .orElseThrow(UserNotFoundException::new);
-        return spotifyCredentialsRepository.findByUser(user)
+        SpotifyCredentialsEntity credentials = spotifyCredentialsRepository.findByUser(user)
                 .orElseThrow(SpotifyCredentialsNotFound::new);
+
+        return SpotifyCredentialsDTO.builder()
+                .accessToken(credentials.getAccessToken())
+                .refreshToken(credentials.getRefreshToken())
+                .build();
     }
 
-    public SpotifyCredentialsEntity refreshCredentials() {
+    public SpotifyCredentialsDTO refreshCredentials() {
         UserEntity user = Optional.ofNullable(authenticationFacade.getCurrentUser())
                 .orElseThrow(UserNotFoundException::new);
 
@@ -39,14 +44,23 @@ public class SpotifyService {
                 .orElseThrow(SpotifyCredentialsNotFound::new);
 
         SpotifyApi spotifyApi = spotifyConfiguration.getSpotifyObject();
+        spotifyApi.setAccessToken(spotifyCredentialsEntity.getAccessToken());
+        spotifyApi.setRefreshToken(spotifyCredentialsEntity.getRefreshToken());
+
+        AuthorizationCodeCredentials credentials;
 
         try {
-            spotifyApi.authorizationCodeRefresh().build().execute();
+            credentials = spotifyApi.authorizationCodeRefresh().build().execute();
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             throw new RuntimeException(e);
         }
 
-        return updateCredentials(spotifyCredentialsEntity, spotifyApi.getAccessToken(), spotifyApi.getRefreshToken());
+        SpotifyCredentialsEntity updatedCredentials = updateCredentials(spotifyCredentialsEntity, credentials.getAccessToken(), spotifyApi.getRefreshToken());
+
+        return SpotifyCredentialsDTO.builder()
+                .accessToken(updatedCredentials.getAccessToken())
+                .refreshToken(updatedCredentials.getRefreshToken())
+                .build();
     }
 
     public String getAuthorizationUrl() {
@@ -96,16 +110,16 @@ public class SpotifyService {
             String accessToken,
             String refreshToken
     ) {
-        spotifyCredentialsEntity.setAccess_token(accessToken);
-        spotifyCredentialsEntity.setRefresh_token(refreshToken);
+        spotifyCredentialsEntity.setAccessToken(accessToken);
+        spotifyCredentialsEntity.setRefreshToken(refreshToken);
         return spotifyCredentialsRepository.save(spotifyCredentialsEntity);
     }
 
     private void saveCredentials(UserEntity user, AuthorizationCodeCredentials credentials) {
         spotifyCredentialsRepository.save(SpotifyCredentialsEntity.builder()
                 .user(user)
-                .access_token(credentials.getAccessToken())
-                .refresh_token(credentials.getRefreshToken())
+                .accessToken(credentials.getAccessToken())
+                .refreshToken(credentials.getRefreshToken())
                 .build());
     }
 
