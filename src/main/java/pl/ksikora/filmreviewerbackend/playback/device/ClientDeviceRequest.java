@@ -1,4 +1,4 @@
-package pl.ksikora.filmreviewerbackend.spotify;
+package pl.ksikora.filmreviewerbackend.playback.device;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SpotifyCredentialsDTO {
-    @JsonProperty("access_token")
-    private String accessToken;
-    @JsonProperty("refresh_token")
-    private String refreshToken;
+public class ClientDeviceRequest {
+    @JsonProperty("device_id")
+    private String deviceId;
+    @JsonProperty("is_active")
+    private Boolean isActive;
 }

@@ -65,13 +65,6 @@ public class ChatService {
                 .build();
     }
 
-    private static String getDefaultName(List<UserEntity> users) {
-        return users.stream()
-                .map(UserEntity::getNickname)
-                .reduce((a, b) -> a + ", " + b)
-                .orElseThrow();
-    }
-
     public List<ChatDTO> getChats() {
 
         UserEntity user = authenticationFacade.getCurrentUser();
@@ -87,5 +80,12 @@ public class ChatService {
                                 .toList())
                         .build())
                 .toList();
+    }
+
+    private static String getDefaultName(List<UserEntity> users) {
+        return users.stream()
+                .map(UserEntity::getNickname)
+                .reduce((a, b) -> a + ", " + b)
+                .orElseThrow();
     }
 }

@@ -1,6 +1,5 @@
 package pl.ksikora.filmreviewerbackend.user;
 
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -15,7 +14,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import pl.ksikora.filmreviewerbackend.spotify.SpotifyCredentialsEntity;
+import pl.ksikora.filmreviewerbackend.playback.spotify.SpotifyCredentialsEntity;
 
 import java.util.Collection;
 import java.util.List;

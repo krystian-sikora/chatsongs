@@ -1,4 +1,4 @@
-package pl.ksikora.filmreviewerbackend.spotify;
+package pl.ksikora.filmreviewerbackend.playback.device;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,13 +16,13 @@ import pl.ksikora.filmreviewerbackend.user.UserEntity;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "_spotify_credentials")
-public class SpotifyCredentialsEntity {
+@Table(name = "_client_device")
+public class ClientDeviceEntity {
     @Id
     @GeneratedValue
     private Long id;
+    private String deviceId;
     @OneToOne
     private UserEntity user;
-    private String accessToken;
-    private String refreshToken;
+    private Boolean isActive;
 }

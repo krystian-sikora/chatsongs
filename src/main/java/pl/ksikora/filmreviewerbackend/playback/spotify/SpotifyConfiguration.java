@@ -1,4 +1,4 @@
-package pl.ksikora.filmreviewerbackend.spotify;
+package pl.ksikora.filmreviewerbackend.playback.spotify;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

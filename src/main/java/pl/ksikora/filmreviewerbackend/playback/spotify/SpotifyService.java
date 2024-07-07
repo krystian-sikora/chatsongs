@@ -1,10 +1,10 @@
-package pl.ksikora.filmreviewerbackend.spotify;
+package pl.ksikora.filmreviewerbackend.playback.spotify;
 
 import lombok.AllArgsConstructor;
 import org.apache.hc.core5.http.ParseException;
 import org.springframework.stereotype.Service;
 import pl.ksikora.filmreviewerbackend.auth.AuthenticationFacade;
-import pl.ksikora.filmreviewerbackend.spotify.exceptions.SpotifyCredentialsNotFound;
+import pl.ksikora.filmreviewerbackend.playback.exceptions.SpotifyCredentialsNotFoundException;
 import pl.ksikora.filmreviewerbackend.user.UserEntity;
 import pl.ksikora.filmreviewerbackend.user.exceptions.UserNotFoundException;
 import se.michaelthelin.spotify.SpotifyApi;
@@ -28,7 +28,7 @@ public class SpotifyService {
         UserEntity user = Optional.ofNullable(authenticationFacade.getCurrentUser())
                 .orElseThrow(UserNotFoundException::new);
         SpotifyCredentialsEntity credentials = spotifyCredentialsRepository.findByUser(user)
-                .orElseThrow(SpotifyCredentialsNotFound::new);
+                .orElseThrow(SpotifyCredentialsNotFoundException::new);
 
         return SpotifyCredentialsDTO.builder()
                 .accessToken(credentials.getAccessToken())
@@ -41,7 +41,7 @@ public class SpotifyService {
                 .orElseThrow(UserNotFoundException::new);
 
         SpotifyCredentialsEntity spotifyCredentialsEntity = spotifyCredentialsRepository.findByUser(user)
-                .orElseThrow(SpotifyCredentialsNotFound::new);
+                .orElseThrow(SpotifyCredentialsNotFoundException::new);
 
         SpotifyApi spotifyApi = spotifyConfiguration.getSpotifyObject();
         spotifyApi.setAccessToken(spotifyCredentialsEntity.getAccessToken());

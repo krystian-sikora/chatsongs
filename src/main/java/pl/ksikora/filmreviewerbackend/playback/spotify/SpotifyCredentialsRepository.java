@@ -1,4 +1,4 @@
-package pl.ksikora.filmreviewerbackend.spotify;
+package pl.ksikora.filmreviewerbackend.playback.spotify;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import pl.ksikora.filmreviewerbackend.user.UserEntity;

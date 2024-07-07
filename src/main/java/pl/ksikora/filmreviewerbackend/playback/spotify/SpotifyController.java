@@ -1,4 +1,4 @@
-package pl.ksikora.filmreviewerbackend.spotify;
+package pl.ksikora.filmreviewerbackend.playback.spotify;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
