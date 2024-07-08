@@ -64,6 +64,11 @@ public class PlaybackService {
         PlaybackSessionEntity session = playbackSessionRepository.findByChat(chat)
                 .orElseThrow(SessionNotFoundException::new);
 
+        if (session.getClientDevices().isEmpty()) {
+            playbackSessionRepository.delete(session);
+            throw new SessionNotFoundException();
+        }
+
         return PlaybackSessionResponse.builder()
                 .sessionId(session.getSessionId())
                 .chatId(chatId)
@@ -88,6 +93,10 @@ public class PlaybackService {
 
         PlaybackActionStrategy actionStrategy = actionStrategyMap.get(request.getAction());
 
+        if (!isClientInSession(session, user)) {
+            throw new RuntimeException("User is not a member of the session");
+        }
+
         List<UserEntity> users = session.getClientDevices().stream()
                 .filter(ClientDeviceEntity::getIsActive)
                 .map(ClientDeviceEntity::getUser)
@@ -108,5 +117,12 @@ public class PlaybackService {
         }
 
         return true;
+    }
+
+    private static boolean isClientInSession(PlaybackSessionEntity session, UserEntity user) {
+        return session.getClientDevices().stream()
+                .map(ClientDeviceEntity::getUser)
+                .filter(u -> u.getId().equals(user.getId()))
+                .anyMatch(u -> true);
     }
 }

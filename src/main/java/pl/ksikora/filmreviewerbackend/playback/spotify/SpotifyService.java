@@ -67,7 +67,7 @@ public class SpotifyService {
         SpotifyApi spotifyApi = spotifyConfiguration.getSpotifyObject();
 
         String state = generateRandomString(16);
-        String scope = "streaming user-read-private user-read-email";
+        String scope = "streaming user-read-private user-read-email user-read-playback-state user-modify-playback-state user-read-currently-playing";
 
         AuthorizationCodeUriRequest authorizationCodeRequest = spotifyApi.authorizationCodeUri()
                 .state(state)

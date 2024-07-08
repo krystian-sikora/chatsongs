@@ -39,6 +39,11 @@ public class PlaybackController {
         return ResponseEntity.ok(playbackSessionService.join(chatId));
     }
 
+    @PostMapping("/quit")
+    public ResponseEntity<Boolean> quit(@RequestBody Long chatId) {
+        return ResponseEntity.ok(playbackSessionService.quit(chatId));
+    }
+
     @PostMapping("/device")
     public ResponseEntity<ClientDeviceResponse> registerDevice(@RequestBody ClientDeviceRequest clientDevice) {
         return ResponseEntity.ok(clientDeviceService.registerDevice(clientDevice));
