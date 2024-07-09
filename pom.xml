@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>pl.ksikora</groupId>
-    <artifactId>film-reviewer-backend</artifactId>
+    <artifactId>chatsongs</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>film-reviewer-backend</name>
-    <description>film-reviewer-backend</description>
+    <name>chatsongs</name>
+    <description>chatsongs</description>
     <properties>
         <java.version>17</java.version>
         <lombok.version>1.18.34</lombok.version>
