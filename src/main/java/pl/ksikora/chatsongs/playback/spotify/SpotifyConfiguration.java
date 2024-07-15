@@ -10,7 +10,8 @@ import java.net.URI;
 @Service
 public class SpotifyConfiguration {
 
-    private static final URI redirectUri = SpotifyHttpManager.makeUri("http://localhost:5173/callback");
+    @Value("${application.frontend.url}")
+    private String url;
 
     @Value("${application.spotify.client-id}")
     private String clientId;
@@ -19,6 +20,7 @@ public class SpotifyConfiguration {
     private String clientSecret;
 
     public SpotifyApi getSpotifyObject() {
+        URI redirectUri = SpotifyHttpManager.makeUri(url + "/callback");
         return new SpotifyApi.Builder()
                 .setClientId(clientId)
                 .setClientSecret(clientSecret)

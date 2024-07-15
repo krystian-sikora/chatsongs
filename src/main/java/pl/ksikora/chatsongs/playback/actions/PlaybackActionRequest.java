@@ -1,8 +1,7 @@
-package pl.ksikora.chatsongs.playback;
+package pl.ksikora.chatsongs.playback.actions;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
-import pl.ksikora.chatsongs.playback.actions.PlaybackActions;
 
 @Data
 public class PlaybackActionRequest {

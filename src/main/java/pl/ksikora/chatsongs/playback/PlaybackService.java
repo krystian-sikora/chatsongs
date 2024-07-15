@@ -7,6 +7,7 @@ import pl.ksikora.chatsongs.auth.AuthenticationFacade;
 import pl.ksikora.chatsongs.chat.ChatEntity;
 import pl.ksikora.chatsongs.chat.ChatRepository;
 import pl.ksikora.chatsongs.chat.exception.ChatNotFoundException;
+import pl.ksikora.chatsongs.playback.actions.PlaybackActionRequest;
 import pl.ksikora.chatsongs.playback.actions.PlaybackActionStrategy;
 import pl.ksikora.chatsongs.playback.actions.PlaybackActions;
 import pl.ksikora.chatsongs.playback.device.ClientDeviceEntity;
@@ -79,7 +80,7 @@ public class PlaybackService {
                 .build();
     }
 
-    public Boolean playbackAction(PlaybackActionRequest request) {
+    public Boolean processPlaybackAction(PlaybackActionRequest request) {
         UserEntity user = authenticationFacade.getCurrentUser();
         ChatEntity chat = chatRepository.findById(request.getChatId())
                 .orElseThrow(ChatNotFoundException::new);

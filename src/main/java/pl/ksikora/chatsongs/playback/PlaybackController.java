@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import pl.ksikora.chatsongs.playback.actions.PlaybackActionRequest;
 import pl.ksikora.chatsongs.playback.device.ClientDeviceRequest;
 import pl.ksikora.chatsongs.playback.device.ClientDeviceResponse;
 import pl.ksikora.chatsongs.playback.device.ClientDeviceService;
@@ -31,7 +32,7 @@ public class PlaybackController {
 
     @PostMapping()
     public ResponseEntity<Boolean> playbackAction(@RequestBody PlaybackActionRequest request) {
-        return ResponseEntity.ok(playbackService.playbackAction(request));
+        return ResponseEntity.ok(playbackService.processPlaybackAction(request));
     }
 
     @PostMapping("/join")

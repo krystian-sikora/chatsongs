@@ -1,6 +1,7 @@
 package pl.ksikora.chatsongs.playback.spotify;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,10 +11,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 @RestController
 @RequestMapping("/api/spotify")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SpotifyController {
 
     private final SpotifyService spotifyService;
+
+    @Value("${application.frontend.url}")
+    private String url;
 
     @GetMapping("/credentials")
     public ResponseEntity<SpotifyCredentialsDTO> getSpotify() {
@@ -33,6 +37,6 @@ public class SpotifyController {
     @GetMapping("/callback")
     public ModelAndView callback(@RequestParam("code") String userCode) {
         spotifyService.processCallback(userCode);
-        return new ModelAndView("redirect:http://localhost:5173");
+        return new ModelAndView("redirect:" + url);
     }
 }

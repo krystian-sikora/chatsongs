@@ -55,7 +55,7 @@ public class SpotifyService {
             throw new RuntimeException(e);
         }
 
-        SpotifyCredentialsEntity updatedCredentials = updateCredentials(spotifyCredentialsEntity, credentials.getAccessToken(), spotifyApi.getRefreshToken());
+        SpotifyCredentialsEntity updatedCredentials = updateCredentials(spotifyCredentialsEntity, credentials);
 
         return SpotifyCredentialsDTO.builder()
                 .accessToken(updatedCredentials.getAccessToken())
@@ -67,7 +67,7 @@ public class SpotifyService {
         SpotifyApi spotifyApi = spotifyConfiguration.getSpotifyObject();
 
         String state = generateRandomString(16);
-        String scope = "streaming user-read-private user-read-email user-read-playback-state user-modify-playback-state user-read-currently-playing";
+        String scope = "streaming user-read-playback-state user-modify-playback-state user-read-currently-playing";
 
         AuthorizationCodeUriRequest authorizationCodeRequest = spotifyApi.authorizationCodeUri()
                 .state(state)
@@ -79,8 +79,7 @@ public class SpotifyService {
     }
 
     public void processCallback(String userCode) {
-        UserEntity user = Optional.ofNullable(authenticationFacade.getCurrentUser())
-                .orElseThrow(UserNotFoundException::new);
+        UserEntity user = authenticationFacade.getCurrentUser();
         SpotifyApi spotifyApi = spotifyConfiguration.getSpotifyObject();
         AuthorizationCodeRequest authorizationCodeRequest = spotifyApi.authorizationCode(userCode).build();
 
@@ -92,26 +91,28 @@ public class SpotifyService {
             throw new RuntimeException("Error while processing callback");
         }
 
-        spotifyApi.setAccessToken(credentials.getAccessToken());
-        spotifyApi.setRefreshToken(credentials.getRefreshToken());
+        if (areTokensNull(credentials)) {
+            throw new RuntimeException("Error while processing callback");
+        }
+
+//        spotifyApi.setAccessToken(credentials.getAccessToken());
+//        spotifyApi.setRefreshToken(credentials.getRefreshToken());
 
         spotifyCredentialsRepository.findByUser(user).ifPresentOrElse(
-                spotifyCredentialsEntity -> updateCredentials(
-                        spotifyCredentialsEntity,
-                        credentials.getAccessToken(),
-                        credentials.getRefreshToken()
-                ),
+                spotifyCredentialsEntity -> updateCredentials(spotifyCredentialsEntity, credentials),
                 () -> saveCredentials(user, credentials)
         );
     }
 
+    private static boolean areTokensNull(AuthorizationCodeCredentials credentials) {
+        return credentials.getAccessToken() == null || credentials.getRefreshToken() == null;
+    }
+
     private SpotifyCredentialsEntity updateCredentials(
             SpotifyCredentialsEntity spotifyCredentialsEntity,
-            String accessToken,
-            String refreshToken
-    ) {
-        spotifyCredentialsEntity.setAccessToken(accessToken);
-        spotifyCredentialsEntity.setRefreshToken(refreshToken);
+            AuthorizationCodeCredentials credentials) {
+        spotifyCredentialsEntity.setAccessToken(credentials.getAccessToken());
+        spotifyCredentialsEntity.setRefreshToken(credentials.getRefreshToken());
         return spotifyCredentialsRepository.save(spotifyCredentialsEntity);
     }
 

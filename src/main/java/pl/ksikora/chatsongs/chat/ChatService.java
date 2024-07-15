@@ -1,7 +1,6 @@
 package pl.ksikora.chatsongs.chat;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import pl.ksikora.chatsongs.auth.AuthenticationFacade;
 import pl.ksikora.chatsongs.chat.message.MessageDTO;
@@ -15,7 +14,6 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ChatService {
 
     private final ChatRepository chatRepository;
@@ -25,19 +23,12 @@ public class ChatService {
 
     public ChatDTO createChat(List<Long> userIds) {
 
-        // TODO: don't let user create chat with himself only and automatically add current user to chat if not present
-
         UserEntity currentUser = authenticationFacade.getCurrentUser();
 
         List<UserEntity> users = userRepository.findAllByIdIn(userIds)
                 .orElseThrow(UserNotFoundException::new);
 
-        users.stream().filter(user -> user.getId().equals(currentUser.getId()))
-                .findAny()
-                .ifPresentOrElse(
-                        user -> log.info("User is in chat"),
-                        () -> users.add(currentUser)
-                );
+        addCurrentUserIfNotPresent(users, currentUser);
 
         String name = getDefaultName(users);
 
@@ -63,6 +54,15 @@ public class ChatService {
                 .users(chat.getUsers().stream().map(UserEntity::toDTO).toList())
                 .messages(messages)
                 .build();
+    }
+
+    private static void addCurrentUserIfNotPresent(List<UserEntity> users, UserEntity currentUser) {
+        users.stream().filter(user -> user.getId().equals(currentUser.getId()))
+                .findAny()
+                .ifPresentOrElse(
+                        user -> {},
+                        () -> users.add(currentUser)
+                );
     }
 
     public List<ChatDTO> getChats() {
