@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.ksikora.chatsongs.auth.AuthenticationFacade;
 import pl.ksikora.chatsongs.user.UserDTO;
+import pl.ksikora.chatsongs.user.UserEntity;
 import pl.ksikora.chatsongs.user.UserRepository;
 import pl.ksikora.chatsongs.user.UserService;
 import pl.ksikora.chatsongs.user.exceptions.UserNotFoundException;
@@ -20,17 +21,16 @@ public class ContactService {
     private final UserService userService;
     private final UserRepository userRepository;
 
-    public Long addContact(Long invitedUserId) {
+    public UserDTO addContact(Long invitedUserId) {
 
         Long userId = authenticationFacade.getCurrentUser().getId();
-
-        if (!userRepository.existsById(invitedUserId)) {
-            throw new UserNotFoundException();
-        }
 
         if (userId.equals(invitedUserId)) {
             throw new IllegalArgumentException("You can't add yourself to contacts");
         }
+
+        UserEntity invitedUser = userRepository.findById(invitedUserId)
+                .orElseThrow(UserNotFoundException::new);
 
         // TODO: implement invitation logic instead of adding contact directly
 
@@ -43,7 +43,7 @@ public class ContactService {
 
         contactRepository.save(contact);
 
-        return invitedUserId;
+        return invitedUser.toDTO();
     }
 
     public List<UserDTO> getContacts() {

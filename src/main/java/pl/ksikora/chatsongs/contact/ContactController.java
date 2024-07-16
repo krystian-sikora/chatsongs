@@ -19,7 +19,7 @@ public class ContactController {
     private final ContactService contactService;
 
     @PostMapping()
-    public ResponseEntity<Long> addContact(@RequestBody String userIdb) {
+    public ResponseEntity<UserDTO> addContact(@RequestBody String userIdb) {
         return ResponseEntity.ok(contactService.addContact(Long.valueOf(userIdb)));
     }
 
