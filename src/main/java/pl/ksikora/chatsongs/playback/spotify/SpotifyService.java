@@ -112,7 +112,6 @@ public class SpotifyService {
             SpotifyCredentialsEntity spotifyCredentialsEntity,
             AuthorizationCodeCredentials credentials) {
         spotifyCredentialsEntity.setAccessToken(credentials.getAccessToken());
-        spotifyCredentialsEntity.setRefreshToken(credentials.getRefreshToken());
         return spotifyCredentialsRepository.save(spotifyCredentialsEntity);
     }
 
