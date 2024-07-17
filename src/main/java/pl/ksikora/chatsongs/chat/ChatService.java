@@ -6,6 +6,8 @@ import pl.ksikora.chatsongs.auth.AuthenticationFacade;
 import pl.ksikora.chatsongs.chat.message.MessageDTO;
 import pl.ksikora.chatsongs.chat.message.MessageEntity;
 import pl.ksikora.chatsongs.chat.message.MessageRepository;
+import pl.ksikora.chatsongs.contact.ContactService;
+import pl.ksikora.chatsongs.user.UserDTO;
 import pl.ksikora.chatsongs.user.UserEntity;
 import pl.ksikora.chatsongs.user.UserRepository;
 import pl.ksikora.chatsongs.user.exceptions.UserNotFoundException;
@@ -20,6 +22,7 @@ public class ChatService {
     private final UserRepository userRepository;
     private final AuthenticationFacade authenticationFacade;
     private final MessageRepository messageRepository;
+    private final ContactService contactService;
 
     public ChatDTO createChat(List<Long> userIds) {
 
@@ -27,6 +30,8 @@ public class ChatService {
 
         List<UserEntity> users = userRepository.findAllByIdIn(userIds)
                 .orElseThrow(UserNotFoundException::new);
+
+        checkIfUsersInContacts(users);
 
         addCurrentUserIfNotPresent(users, currentUser);
 
@@ -54,6 +59,19 @@ public class ChatService {
                 .users(chat.getUsers().stream().map(UserEntity::toDTO).toList())
                 .messages(messages)
                 .build();
+    }
+
+    private void checkIfUsersInContacts(List<UserEntity> users) {
+        List<UserDTO> contacts = contactService.getContacts();
+        users.stream()
+                .map(UserEntity::getId)
+                .forEach(id -> contacts.stream()
+                        .filter(user -> user.getId().equals(id))
+                        .findAny()
+                        .ifPresentOrElse(
+                                user -> {},
+                                () -> { throw new IllegalArgumentException("User not in contacts"); }
+                        ));
     }
 
     private static void addCurrentUserIfNotPresent(List<UserEntity> users, UserEntity currentUser) {
