@@ -1,5 +1,7 @@
 package pl.ksikora.chatsongs.playback.session;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import lombok.AllArgsConstructor;
 import org.apache.hc.core5.http.ParseException;
@@ -17,6 +19,7 @@ import pl.ksikora.chatsongs.playback.spotify.SpotifyCredentialsEntity;
 import pl.ksikora.chatsongs.playback.spotify.SpotifyCredentialsRepository;
 import pl.ksikora.chatsongs.user.UserEntity;
 import se.michaelthelin.spotify.SpotifyApi;
+import se.michaelthelin.spotify.enums.ModelObjectType;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.miscellaneous.CurrentlyPlaying;
 
@@ -114,15 +117,16 @@ public class PlaybackSessionService {
         spotifyApi.setAccessToken(credentials.getAccessToken());
 
         try {
-            CurrentlyPlaying track = spotifyApi.getUsersCurrentlyPlayingTrack().build().execute();
-            if (track != null) setCurrentTrack(track);
-
+            CurrentlyPlaying currentlyPlaying = spotifyApi.getUsersCurrentlyPlayingTrack().build().execute();
+            setCurrentlyPlaying(currentlyPlaying);
         } catch (IOException | SpotifyWebApiException | ParseException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private void setCurrentTrack(CurrentlyPlaying track) {
+    private void setCurrentlyPlaying(
+            CurrentlyPlaying currentlyPlaying
+    ) throws IOException, ParseException, SpotifyWebApiException {
         SpotifyCredentialsEntity credentials = spotifyCredentialsRepository
                 .findByUser(authenticationFacade.getCurrentUser())
                 .orElseThrow(SpotifyCredentialsNotFoundException::new);
@@ -134,16 +138,43 @@ public class PlaybackSessionService {
         ClientDeviceEntity device = clientDeviceRepository.findByUser(authenticationFacade.getCurrentUser())
                 .orElseThrow(ClientDeviceNotFoundException::new);
 
-        try {
-            spotifyApi.startResumeUsersPlayback()
-                    .context_uri(track.getContext().getUri())
-                    .offset(JsonParser.parseString(String.format("{\"uri\":\"%s\"}", track.getItem().getUri())).getAsJsonObject())
-                    .position_ms(track.getProgress_ms())
-                    .device_id(device.getDeviceId())
-                    .build().execute();
-        } catch (IOException | SpotifyWebApiException | ParseException e) {
-            throw new RuntimeException(e);
-        }
+        if (currentlyPlaying.getContext() == null) setCurrentTrack(currentlyPlaying, spotifyApi, device);
+        else if (currentlyPlaying.getContext().getType().equals(ModelObjectType.ARTIST))
+            setCurrentTrack(currentlyPlaying, spotifyApi, device);
+        else setCurrentContext(currentlyPlaying, spotifyApi, device);
+    }
+
+    private void setCurrentTrack(
+            CurrentlyPlaying currentlyPlaying,
+            SpotifyApi spotifyApi,
+            ClientDeviceEntity device
+    ) throws IOException, ParseException, SpotifyWebApiException {
+        JsonArray urisArray = JsonParser.parseString(
+                String.format("[\"%s\"]", currentlyPlaying.getItem().getUri())
+        ).getAsJsonArray();
+
+        spotifyApi.startResumeUsersPlayback()
+                .uris(urisArray)
+                .position_ms(currentlyPlaying.getProgress_ms())
+                .device_id(device.getDeviceId())
+                .build().execute();
+    }
+
+    private void setCurrentContext(
+            CurrentlyPlaying currentlyPlaying,
+            SpotifyApi spotifyApi,
+            ClientDeviceEntity device
+    ) throws IOException, ParseException, SpotifyWebApiException {
+        JsonObject offsetUri = JsonParser.parseString(
+                String.format("{\"uri\":\"%s\"}", currentlyPlaying.getItem().getUri())
+        ).getAsJsonObject();
+
+        spotifyApi.startResumeUsersPlayback()
+                .context_uri(currentlyPlaying.getContext().getUri())
+                .offset(offsetUri)
+                .position_ms(currentlyPlaying.getProgress_ms())
+                .device_id(device.getDeviceId())
+                .build().execute();
     }
 
     private void removeDeviceFromOtherSessions(ClientDeviceEntity device) {
