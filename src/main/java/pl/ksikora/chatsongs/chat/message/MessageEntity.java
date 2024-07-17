@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pl.ksikora.chatsongs.chat.ChatEntity;
+import pl.ksikora.chatsongs.user.UserEntity;
 
 import java.time.Instant;
 
@@ -37,6 +38,11 @@ public class MessageEntity {
                 .content(content)
                 .createdAt(createdAt)
                 .senderId(senderId)
+                .senderName(chat.getUsers().stream()
+                        .filter(u -> u.getId().equals(senderId))
+                        .findFirst()
+                        .map(UserEntity::getNickname)
+                        .orElse("Unknown"))
                 .build();
     }
 }
