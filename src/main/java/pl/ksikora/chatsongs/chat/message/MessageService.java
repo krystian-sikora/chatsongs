@@ -27,6 +27,11 @@ public class MessageService {
         ChatEntity chat = chatRepository.findById(receivedMessage.getChatId())
                 .orElseThrow(() -> new IllegalArgumentException("Chat not found"));
 
+        chat.getUsers().stream()
+                .filter(u -> u.getId().equals(id))
+                .findAny()
+                .orElseThrow(() -> new IllegalArgumentException("User not in chat"));
+
         MessageEntity message = MessageEntity.builder()
                 .chat(chat)
                 .createdAt(Instant.now())
