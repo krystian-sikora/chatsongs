@@ -1,11 +1,11 @@
-package pl.ksikora.chatsongs.filebasedplayback.music;
+package pl.ksikora.chatsongs.filebasedplayback.song;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 
 import java.util.UUID;
 
-@RepositoryRestResource(path="music")
-public interface MusicRepository extends JpaRepository<MusicEntity, UUID> {
+@RepositoryRestResource(path = "songs")
+public interface SongRepository extends JpaRepository<SongEntity, UUID> {
 
 }
