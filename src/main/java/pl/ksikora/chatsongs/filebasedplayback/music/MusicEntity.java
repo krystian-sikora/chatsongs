@@ -12,6 +12,7 @@ import org.springframework.content.commons.annotations.ContentLength;
 import org.springframework.content.commons.annotations.MimeType;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -21,12 +22,12 @@ public class MusicEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	private UUID id;
 	private String name;
 	private Date created = new Date();
 	private String summary;
 
 	@ContentId private String contentId;
 	@ContentLength private long contentLength;
-	@MimeType private String contentMimeType = "text/plain";
+	@MimeType private String contentMimeType;
 }
