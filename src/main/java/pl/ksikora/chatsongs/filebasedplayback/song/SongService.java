@@ -9,6 +9,7 @@ import pl.ksikora.chatsongs.user.UserEntity;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -52,5 +53,33 @@ public class SongService {
 
         songRepository.delete(song);
         songStore.unsetContent(song);
+    }
+
+    public List<SongResponse> getUserSongs() {
+        UserEntity user = authenticationFacade.getCurrentUser();
+
+
+        return songRepository.findAllByOwner(user).stream()
+                .map(song -> SongResponse.builder()
+                        .id(song.getId())
+                        .contentId(song.getContentId())
+                        .name(song.getName())
+                        .owner(song.getOwner().getId())
+                        .created(song.getCreated())
+                        .build()
+                ).toList();
+    }
+
+    public SongResponse getSongMetadata(UUID id) {
+        SongEntity song = songRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Song not found"));
+
+        return SongResponse.builder()
+                .id(song.getId())
+                .contentId(song.getContentId())
+                .name(song.getName())
+                .owner(song.getOwner().getId())
+                .created(song.getCreated())
+                .build();
     }
 }

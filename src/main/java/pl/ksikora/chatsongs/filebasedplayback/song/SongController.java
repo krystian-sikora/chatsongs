@@ -3,6 +3,7 @@ package pl.ksikora.chatsongs.filebasedplayback.song;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -29,5 +31,15 @@ public class SongController {
     public ResponseEntity<Void> deleteSong(@PathVariable UUID id) {
         songService.deleteSong(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<SongResponse>> getUserSongs() {
+        return ResponseEntity.ok(songService.getUserSongs());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SongResponse> getSongMetadata(@PathVariable UUID id) {
+        return ResponseEntity.ok(songService.getSongMetadata(id));
     }
 }

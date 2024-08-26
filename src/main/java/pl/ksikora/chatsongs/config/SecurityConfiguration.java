@@ -44,6 +44,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/songs").denyAll()
                         .requestMatchers(HttpMethod.PUT, "/songs/**").denyAll()
                         .requestMatchers(HttpMethod.DELETE, "/songs/**").denyAll()
+                        .requestMatchers(HttpMethod.GET, "/songs/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
