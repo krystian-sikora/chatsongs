@@ -64,7 +64,7 @@ public class SongService {
                         .id(song.getId())
                         .contentId(song.getContentId())
                         .name(song.getName())
-                        .owner(song.getOwner().getId())
+                        .ownerId(song.getOwner().getId())
                         .created(song.getCreated())
                         .build()
                 ).toList();
@@ -78,7 +78,7 @@ public class SongService {
                 .id(song.getId())
                 .contentId(song.getContentId())
                 .name(song.getName())
-                .owner(song.getOwner().getId())
+                .ownerId(song.getOwner().getId())
                 .created(song.getCreated())
                 .build();
     }

@@ -61,6 +61,8 @@ public class AuthenticationService {
     }
 
     private void saveUserToken(UserEntity user, String jwtToken) {
+        revokeAllUserTokens(user);
+
         var token = TokenEntity.builder()
                 .user(user)
                 .token(jwtToken)
@@ -122,7 +124,6 @@ public class AuthenticationService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         if (jwtService.isTokenValid(refreshToken, user)) {
-            revokeAllUserTokens(user);
             String accessToken = jwtService.generateToken(user);
             saveUserToken(user, accessToken);
 

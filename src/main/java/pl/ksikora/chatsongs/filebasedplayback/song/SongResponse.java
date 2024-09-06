@@ -13,7 +13,10 @@ public class SongResponse {
     private UUID id;
     @JsonProperty("content_id")
     private UUID contentId;
+    @JsonProperty("content_length")
+    private Long contentLength;
     private String name;
     private Date created;
-    private Long owner;
+    @JsonProperty("owner_id")
+    private Long ownerId;
 }

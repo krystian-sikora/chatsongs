@@ -40,6 +40,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/chat/**").permitAll()
+                        .requestMatchers("/playback/**").permitAll()
                         .requestMatchers("/error").permitAll()
                         .requestMatchers(HttpMethod.POST, "/songs").denyAll()
                         .requestMatchers(HttpMethod.PUT, "/songs/**").denyAll()

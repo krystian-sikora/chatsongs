@@ -36,7 +36,7 @@ public class SongEntity {
     @ContentId
     private UUID contentId;
     @ContentLength
-    private long contentLength;
+    private Long contentLength;
     @MimeType
     private String contentMimeType;
 }
