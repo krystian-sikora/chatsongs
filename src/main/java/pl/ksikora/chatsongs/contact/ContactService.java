@@ -3,6 +3,7 @@ package pl.ksikora.chatsongs.contact;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import pl.ksikora.chatsongs.auth.AuthenticationFacade;
+import pl.ksikora.chatsongs.contact.exceptions.UserAlreadyInContacts;
 import pl.ksikora.chatsongs.user.UserDTO;
 import pl.ksikora.chatsongs.user.UserEntity;
 import pl.ksikora.chatsongs.user.UserRepository;
@@ -40,6 +41,15 @@ public class ContactService {
                         .contactId(invitedUserId)
                         .build())
                 .build();
+
+        var contacts = contactRepository.getAllById(userId);
+
+        contacts.stream()
+                .filter(c -> c.getId().getContactId().equals(invitedUserId))
+                .findAny()
+                .ifPresent(c -> {
+                    throw new UserAlreadyInContacts();
+                });
 
         contactRepository.save(contact);
 
