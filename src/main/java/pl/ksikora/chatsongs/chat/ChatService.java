@@ -12,6 +12,7 @@ import pl.ksikora.chatsongs.user.UserEntity;
 import pl.ksikora.chatsongs.user.UserRepository;
 import pl.ksikora.chatsongs.user.exceptions.UserNotFoundException;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -41,6 +42,7 @@ public class ChatService {
                 .type(ChatType.GROUP)
                 .users(users)
                 .name(name)
+                .createdAt(Instant.now())
                 .build();
 
         chatRepository.save(chat);
@@ -58,6 +60,7 @@ public class ChatService {
                 .name(chat.getName())
                 .users(chat.getUsers().stream().map(UserEntity::toDTO).toList())
                 .messages(messages)
+                .createdAt(chat.getCreatedAt())
                 .build();
     }
 
@@ -96,6 +99,7 @@ public class ChatService {
                         .messages(messageRepository.findAllByChatId(chat.getId()).stream()
                                 .map(MessageEntity::toDTO)
                                 .toList())
+                        .createdAt(chat.getCreatedAt())
                         .build())
                 .toList();
     }

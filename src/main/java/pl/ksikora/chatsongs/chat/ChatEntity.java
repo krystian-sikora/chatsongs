@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 import pl.ksikora.chatsongs.chat.message.MessageEntity;
 import pl.ksikora.chatsongs.user.UserEntity;
 
+import java.time.Instant;
 import java.util.List;
 
 @Data
@@ -35,5 +36,6 @@ public class ChatEntity {
     private List<UserEntity> users;
     @OneToMany(fetch = FetchType.EAGER)
     private List<MessageEntity> messages;
+    private Instant createdAt;
 
 }
