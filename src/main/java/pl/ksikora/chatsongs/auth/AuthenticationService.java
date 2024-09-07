@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import pl.ksikora.chatsongs.user.exceptions.BadCredentialsException;
 import pl.ksikora.chatsongs.config.JwtService;
 import pl.ksikora.chatsongs.token.TokenEntity;
 import pl.ksikora.chatsongs.token.TokenRepository;
@@ -16,6 +17,7 @@ import pl.ksikora.chatsongs.user.UserDTO;
 import pl.ksikora.chatsongs.user.UserRole;
 import pl.ksikora.chatsongs.user.UserEntity;
 import pl.ksikora.chatsongs.user.UserRepository;
+import pl.ksikora.chatsongs.user.exceptions.UserAlreadyExists;
 
 import java.io.IOException;
 
@@ -38,7 +40,7 @@ public class AuthenticationService {
                 .build();
 
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("User already exists");
+            throw new UserAlreadyExists("User already exists");
         }
         userRepository.save(user);
 
@@ -46,12 +48,17 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
+        } catch (Exception e) {
+            throw new BadCredentialsException("Invalid email or password");
+        }
 
         var user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new RuntimeException("User not found"));
